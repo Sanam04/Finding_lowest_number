@@ -1,0 +1,45 @@
+name: Run Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - name: Run tests
+      run: |
+        for i in 1 2 3
+        do
+          input="test_data/test${i}_input.txt"
+          expected="test_data/test${i}_expected.txt"
+          output="output.txt"
+
+          # Run your Python script with input and output args
+          python3 find_lowest_number.py $input $output
+
+          # Read the output file
+          result=$(cat $output)
+
+          # Compare with expected
+          if [ "$result" != "$(cat $expected)" ]; then
+            echo " Test $i failed"
+            echo "Expected: $(cat $expected)"
+            echo "Got: $result"
+            exit 1
+          else
+            echo "Test $i passed"
+          fi
+        done
+
+        echo "All tests passed!"
